@@ -11,7 +11,7 @@ const config: WebComponentConfiguration = {
   template    : `<div></div>`,
 }
 
-createWebComponentTemplate( config )
+customElements.define( "my-element", createWebComponentTemplate( config ) )
 
 describe( "custom component builder", () => {
   it( "has working config", async () => {

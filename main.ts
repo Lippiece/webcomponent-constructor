@@ -25,7 +25,7 @@ import WebComponentConfiguration from "./@types/WebComponentConfiguration"
 const createWebComponentTemplate = ( configuration: WebComponentConfiguration ) => {
   const stateAtom = atom( configuration.defaultState )
 
-  class WebComponent extends HTMLElement {
+  return class WebComponent extends HTMLElement {
     state = {
       get: () => stateAtom.get(),
       // updater function using immer
@@ -55,8 +55,6 @@ const createWebComponentTemplate = ( configuration: WebComponentConfiguration ) 
       this.attachShadow( { mode: "open" } )
     }
   }
-
-  customElements.define( configuration.name, WebComponent )
 }
 
 export default createWebComponentTemplate
