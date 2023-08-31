@@ -1,11 +1,12 @@
 {
   "name"            : "webcomponent-constructor",
-  "version"         : "0.2.0",
+  "version"         : "0.3.0",
   "description"     : "A tool for creating web components that automatically implement best practices.",
   "main"            : "main.ts",
   "scripts"         : {
     "test"       : "wtr",
-    "test:watch" : "wtr --watch"
+    "test:watch" : "wtr --watch",
+    "publish"    : "git push && npm publish"
   },
   "type"            : "module",
   "keywords"        : [

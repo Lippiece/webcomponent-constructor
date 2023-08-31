@@ -31,5 +31,19 @@ describe( "custom component builder", () => {
                                                      bar: "bar",
                                                    } )
     } )
+    it( "should update state", async () => {
+      const element = await fixture( html`
+        <my-element foo = "foo" bar = "bar"></my-element>` )
+
+      const producer = ( draft ) => {
+        draft.foo = "new foo"
+      }
+      element.state.set( producer )
+
+      expect( element.state.get() ).to.deep.equal( {
+                                                     foo: "new foo",
+                                                     bar: "bar",
+                                                   } )
+    } )
   } )
 } )

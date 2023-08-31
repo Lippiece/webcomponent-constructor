@@ -2,6 +2,16 @@ import { produce }               from "immer"
 import { atom }                  from "nanostores"
 import WebComponentConfiguration from "./@types/WebComponentConfiguration"
 
+interface StateRecord {
+  [ key: string ]: any
+}
+
+interface State {
+  get: () => StateRecord
+  set: ( producer: ( state: StateRecord,
+                     draft: StateRecord ) => StateRecord ) => void
+}
+
 /**
  * Creates a web component template based on the provided configuration.
  *
@@ -23,14 +33,15 @@ import WebComponentConfiguration from "./@types/WebComponentConfiguration"
  * @return {WebComponentClass} The new web component class.
  */
 const createWebComponentTemplate = ( configuration: WebComponentConfiguration ) => {
-  const stateAtom = atom( configuration.defaultState )
+  const stateAtom = atom<StateRecord>( configuration.defaultState )
 
   return class WebComponent extends HTMLElement {
-    state = {
+    state: State = {
       get: () => stateAtom.get(),
       // updater function using immer
-      set: ( updater: ( state: Record<string, any> ) => Record<string, any> ) => {
-        stateAtom.set( produce( updater ) )
+      set: ( producer ) => {
+        const newState = produce( this.state.get(), producer )
+        stateAtom.set( newState )
       },
     }
 
