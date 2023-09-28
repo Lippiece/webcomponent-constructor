@@ -18,23 +18,21 @@ import WebComponentConfiguration from "./@types/WebComponentConfiguration"
  *     State initialized from config
  *     Methods can be added by extending class after it is returned
  *
- * @param {WebComponentConfiguration} configuration - The configuration object
- *   for the web component.
+ * @param {WebComponentConfiguration<T>} configuration - The configuration
+ *   object for the web component.
  * @return {WebComponentClass} The new web component class.
  */
-const createWebComponentBaseClass = ( configuration: WebComponentConfiguration ) => {
-  type StateRecord = typeof configuration.defaultState
-
+const createWebComponentBaseClass = <T>( configuration: WebComponentConfiguration<T> ) => {
   interface State {
-    get: () => StateRecord
-    set: ( producer: ( state: StateRecord,
-                       draft: StateRecord ) => StateRecord ) => void
+    get: () => T
+    set: ( producer: ( state: T,
+                       draft: T ) => T ) => void
   }
 
   const template     = document.createElement( "template" )
   template.innerHTML = configuration.template
 
-  const stateAtom = atom<StateRecord>( configuration.defaultState )
+  const stateAtom = atom<T>( configuration.defaultState )
 
   return class WebComponent extends HTMLElement {
     state: State = {

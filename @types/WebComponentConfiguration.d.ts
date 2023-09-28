@@ -1,5 +1,5 @@
-export default interface WebComponentConfiguration {
+export default interface WebComponentConfiguration<T> {
   name: string;
-  defaultState: { [ key: string ]: any; };
+  defaultState: T;
   template: string;
 }
