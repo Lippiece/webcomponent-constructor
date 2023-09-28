@@ -2,16 +2,6 @@ import { produce }               from "immer"
 import { atom }                  from "nanostores"
 import WebComponentConfiguration from "./@types/WebComponentConfiguration"
 
-interface StateRecord {
-  [ key: string ]: any
-}
-
-interface State {
-  get: () => StateRecord
-  set: ( producer: ( state: StateRecord,
-                     draft: StateRecord ) => StateRecord ) => void
-}
-
 /**
  * Creates a web component template based on the provided configuration.
  *
@@ -32,7 +22,18 @@ interface State {
  *   for the web component.
  * @return {WebComponentClass} The new web component class.
  */
-const createWebComponentTemplate = ( configuration: WebComponentConfiguration ) => {
+const createWebComponentBaseClass = ( configuration: WebComponentConfiguration ) => {
+  type StateRecord = typeof configuration.defaultState
+
+  interface State {
+    get: () => StateRecord
+    set: ( producer: ( state: StateRecord,
+                       draft: StateRecord ) => StateRecord ) => void
+  }
+
+  const template     = document.createElement( "template" )
+  template.innerHTML = configuration.template
+
   const stateAtom = atom<StateRecord>( configuration.defaultState )
 
   return class WebComponent extends HTMLElement {
@@ -45,27 +46,18 @@ const createWebComponentTemplate = ( configuration: WebComponentConfiguration ) 
       },
     }
 
-    /**
-     *  connectedCallback() fires when the element is inserted into the DOM.
-     *  It's a good place to set the initial role, tabindex, internal
-     * defaultState, and install event listeners.
-     */
-    connectedCallback() {
-      this.render( configuration.template )
-    }
-
-    render( template ) {
-      const fragment = new DOMParser()
-        .parseFromString( template, "text/html" )
-        .firstChild
-      this.shadowRoot.replaceChildren( fragment )
-    }
-
     constructor() {
       super()
       this.attachShadow( { mode: "open" } )
+      this.render( configuration.template )
+    }
+
+    render( content: string ) {
+      template.innerHTML = content
+
+      this.shadowRoot.replaceChildren( template.content.cloneNode( true ) )
     }
   }
 }
 
-export default createWebComponentTemplate
+export default createWebComponentBaseClass
