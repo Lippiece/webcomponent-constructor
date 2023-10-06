@@ -27,6 +27,8 @@ const createWebComponentBaseClass = <T>( configuration: WebComponentConfiguratio
     get: () => T
     set: ( producer: ( state: T,
                        draft: T ) => T ) => void
+
+    subscribe( subscriber: ( state: T ) => void ): () => void
   }
 
   const template     = document.createElement( "template" )
@@ -38,9 +40,12 @@ const createWebComponentBaseClass = <T>( configuration: WebComponentConfiguratio
     state: State = {
       get: () => stateAtom.get(),
       // updater function using immer
-      set: ( producer ) => {
+      set: producer => {
         const newState = produce( this.state.get(), producer )
         stateAtom.set( newState )
+      },
+      subscribe( subscriber: ( state: T ) => void ): () => void {
+        return stateAtom.subscribe( subscriber )
       },
     }
 

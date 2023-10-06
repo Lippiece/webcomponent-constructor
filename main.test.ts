@@ -37,21 +37,27 @@ describe( "custom component builder", () => {
       expect( typeof element.state.get() ).to.equal( "object" )
     } )
     it( "works with custom class", async () => {
-      const base = createWebComponentBaseClass( {
-                                                  tag         : "my-element",
-                                                  defaultState: {
-                                                    foo: "foo",
-                                                    bar: "bar",
-                                                  },
-                                                  // language=HTML
-                                                  template: `
-                                                    <slot></slot>
-                                                    <button>button</button>
-                                                  `,
-                                                } )
+      type State = {
+        foo: string
+        bar: string
+      }
+      const Base = createWebComponentBaseClass<State>( {
+                                                         tag         : "my-element",
+                                                         defaultState: {
+                                                           foo: "foo",
+                                                           bar: "bar",
+                                                         },
+                                                         // language=HTML
+                                                         template: `
+                                                           <slot></slot>
+                                                           <button>button
+                                                           </button>
+                                                         `,
+                                                       } )
 
-      class Extended extends base {
+      class Extended extends Base {
         connectedCallback() {
+          const a = this.state.get().foo
 
           this.shadowRoot.querySelector( "button" )
               .addEventListener( "click",
@@ -96,7 +102,6 @@ describe( "custom component builder", () => {
                                                      bar: "bar",
                                                    } )
     } )
-
     it( "supports templates", async () => {
       // language=HTML
       const element = await render( `
@@ -107,6 +112,11 @@ describe( "custom component builder", () => {
       ` )
 
 
+    } )
+    it( "supports state subscribing", async () => {
+      const element = await render( `<div></div>` )
+
+      expect( element.state.subscribe ).to.be.a( "function" )
     } )
   } )
 } )
