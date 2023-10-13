@@ -1,32 +1,32 @@
 {
-  "name"           : "webcomponent-constructor",
-  "version"        : "0.6.0",
-  "description"    : "A tool for creating web components that automatically implement best practices.",
-  "main"           : "main.ts",
-  "scripts"        : {
-    "test"      : "wtr",
+  "name": "webcomponent-constructor",
+  "version": "0.7.0",
+  "description": "A tool for creating web components that automatically implement best practices.",
+  "main": "main.ts",
+  "scripts": {
+    "test": "wtr",
     "test:watch": "wtr --watch",
-    "publish"   : "git push && npm publish"
+    "publish": "git push && npm publish"
   },
-  "type"           : "module",
-  "keywords"       : [
+  "type": "module",
+  "keywords": [
     "web-components",
     "javascript",
     "typescript",
     "nanostores",
     "immer"
   ],
-  "author"         : "lippiece",
-  "license"        : "ISC",
-  "dependencies"   : {
-    "immer"     : "^10.0.2",
+  "author": "lippiece",
+  "license": "ISC",
+  "dependencies": {
+    "immer": "^10.0.2",
     "nanostores": "^0.9.3"
   },
   "devDependencies": {
-    "@esm-bundle/chai"       : "^4.3.4-fix.0",
-    "@open-wc/testing"       : "next",
+    "@esm-bundle/chai": "^4.3.4-fix.0",
+    "@open-wc/testing": "next",
     "@web/dev-server-esbuild": "^0.4.1",
-    "@web/test-runner"       : "^0.17.1",
-    "typescript"             : "^5.2.2"
+    "@web/test-runner": "^0.17.1",
+    "typescript": "^5.2.2"
   }
 }
