@@ -1,5 +1,5 @@
 import { produce }               from "immer"
-import { atom }                  from "nanostores"
+import { WritableAtom, atom }                  from "nanostores"
 import WebComponentConfiguration from "./@types/WebComponentConfiguration"
 
 /**
@@ -23,13 +23,6 @@ import WebComponentConfiguration from "./@types/WebComponentConfiguration"
  * @return {WebComponentClass} The new web component class.
  */
 const createWebComponentBaseClass = <T>( configuration: WebComponentConfiguration<T> ) => {
-  interface State {
-    get: () => T
-    set: ( producer: ( state: T,
-                       draft: T ) => T ) => void
-
-    subscribe( subscriber: ( state: T ) => void ): () => void
-  }
 
   const template     = document.createElement( "template" )
   template.innerHTML = configuration.template
@@ -37,17 +30,7 @@ const createWebComponentBaseClass = <T>( configuration: WebComponentConfiguratio
   const stateAtom = atom<T>( configuration.defaultState )
 
   return class WebComponent extends HTMLElement {
-    state: State = {
-      get: () => stateAtom.get(),
-      // updater function using immer
-      set: producer => {
-        const newState = produce( this.state.get(), producer )
-        stateAtom.set( newState )
-      },
-      subscribe( subscriber: ( state: T ) => void ): () => void {
-        return stateAtom.subscribe( subscriber )
-      },
-    }
+    state: WritableAtom = stateAtom
 
     constructor() {
       super()
