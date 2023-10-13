@@ -1,6 +1,7 @@
-import { produce }               from "immer"
-import { WritableAtom, atom }                  from "nanostores"
+import { Immer, produce } from "immer"
+import { WritableAtom, atom } from "nanostores"
 import WebComponentConfiguration from "./@types/WebComponentConfiguration"
+import { Recipe, State } from "./@types/State"
 
 /**
  * Creates a web component template based on the provided configuration.
@@ -22,26 +23,31 @@ import WebComponentConfiguration from "./@types/WebComponentConfiguration"
  *   object for the web component.
  * @return {WebComponentClass} The new web component class.
  */
-const createWebComponentBaseClass = <T>( configuration: WebComponentConfiguration<T> ) => {
+const createWebComponentBaseClass = <T>(configuration: WebComponentConfiguration<T>) => {
 
-  const template     = document.createElement( "template" )
+  const template = document.createElement("template")
   template.innerHTML = configuration.template
 
-  const stateAtom = atom<T>( configuration.defaultState )
+  const stateAtom = atom(configuration.defaultState)
+
 
   return class WebComponent extends HTMLElement {
-    state: WritableAtom = stateAtom
+    state: State<T> = {
+      ...stateAtom,
+      set: (recipe:Recipe<T>) =>
+        stateAtom.set(produce(stateAtom.get(), recipe))
+    }
 
     constructor() {
       super()
-      this.attachShadow( { mode: "open" } )
-      this.render( configuration.template )
+      this.attachShadow({ mode: "open" })
+      this.render(configuration.template)
     }
 
-    render( content: string ) {
+    render(content: string) {
       template.innerHTML = content
 
-      this.shadowRoot.replaceChildren( template.content.cloneNode( true ) )
+      this.shadowRoot.replaceChildren(template.content.cloneNode(true))
     }
   }
 }

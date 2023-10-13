@@ -2,6 +2,8 @@ import { expect, fixture, html, unsafeStatic } from "@open-wc/testing"
 import WebComponentConfiguration
                                                from "./@types/WebComponentConfiguration"
 import createWebComponentBaseClass             from "./main"
+import { produce } from "immer"
+import { Recipe } from "./@types/State"
 
 const generateRandomString = () => {
   return Math.random().toString( 36 ).substring( 2 )
@@ -92,15 +94,13 @@ describe( "custom component builder", () => {
     it( "should update state", async () => {
       const element = await render( `<div></div>` )
 
-      const producer = ( draft ) => {
-        draft.foo = "new foo"
+      const newValue = {
+        foo: "new foo",
+        bar: "bar",
       }
-      element.state.set( producer )
+      element.state.set(()=>newValue )
 
-      expect( element.state.get() ).to.deep.equal( {
-                                                     foo: "new foo",
-                                                     bar: "bar",
-                                                   } )
+      expect( element.state.get() ).to.deep.equal(newValue)
     } )
     it( "supports templates", async () => {
       // language=HTML
@@ -110,7 +110,6 @@ describe( "custom component builder", () => {
           <div>bar</div>
         </template>
       ` )
-
 
     } )
     it( "supports state subscribing", async () => {

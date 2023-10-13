@@ -1,0 +1,1 @@
+/home/lippiece/eslint.config.js
