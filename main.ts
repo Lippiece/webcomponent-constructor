@@ -1,7 +1,10 @@
-import { Immer, produce } from "immer"
-import { WritableAtom, atom } from "nanostores"
-import WebComponentConfiguration from "./@types/WebComponentConfiguration"
+import { produce } from "immer"
+import { HTMLTemplateResult } from "lit"
+import {render } from "lit-html"
+import { atom } from "nanostores"
+
 import { Recipe, State } from "./@types/State"
+import WebComponentConfiguration from "./@types/WebComponentConfiguration"
 
 /**
  * Creates a web component template based on the provided configuration.
@@ -25,17 +28,14 @@ import { Recipe, State } from "./@types/State"
  */
 const createWebComponentBaseClass = <T>(configuration: WebComponentConfiguration<T>) => {
 
-  const template = document.createElement("template")
-  template.innerHTML = configuration.template
-
   const stateAtom = atom(configuration.defaultState)
-
 
   return class WebComponent extends HTMLElement {
     state: State<T> = {
       ...stateAtom,
+
       set: (recipe:Recipe<T>) =>
-        stateAtom.set(produce(stateAtom.get(), recipe))
+      { stateAtom.set(produce(stateAtom.get(), recipe)) },
     }
 
     constructor() {
@@ -44,10 +44,8 @@ const createWebComponentBaseClass = <T>(configuration: WebComponentConfiguration
       this.render(configuration.template)
     }
 
-    render(content: string) {
-      template.innerHTML = content
-
-      this.shadowRoot.replaceChildren(template.content.cloneNode(true))
+    render(content: HTMLTemplateResult) {
+      render(content, this.shadowRoot!)
     }
   }
 }

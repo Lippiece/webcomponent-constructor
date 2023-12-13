@@ -1,26 +1,25 @@
-import { expect, fixture, html, unsafeStatic } from "@open-wc/testing"
-import WebComponentConfiguration
-                                               from "./@types/WebComponentConfiguration"
-import createWebComponentBaseClass             from "./main"
-import { produce } from "immer"
-import { Recipe } from "./@types/State"
+import { assert, expect, fixture, html, unsafeStatic } from "@open-wc/testing"
+import { HTMLTemplateResult } from "lit"
 
-const generateRandomString = () => {
-  return Math.random().toString( 36 ).substring( 2 )
-}
-const render               = async ( template: string, dom: string = "" ) => {
+import WebComponentConfiguration
+  from "./@types/WebComponentConfiguration"
+import createWebComponentBaseClass             from "./main"
+
+const generateRandomString = () => Math.random().toString( 36 ).slice( 2 )
+const render               = async ( template: HTMLTemplateResult, dom = "" ) => {
   const config: WebComponentConfiguration = {
-    tag         : "my-element",
     defaultState: {
-      foo: "foo",
       bar: "bar",
+      foo: "foo",
     },
-    template    : template,
+
+    tag         : "my-element",
+    template,
   }
 
   const tag = `${ config.tag }-${ generateRandomString() }`
   customElements.define( tag,
-                         createWebComponentBaseClass( config ) )
+    createWebComponentBaseClass( config ) )
 
   return await fixture( html`
     <${ unsafeStatic( tag ) }>
@@ -31,39 +30,33 @@ const render               = async ( template: string, dom: string = "" ) => {
 describe( "custom component builder", () => {
   describe( "render", () => {
     it( "allows slots", async () => {
-      const element    = await render( `
-        <slot></slot>`, `<div></div>` )
-      const slottedDiv = element.querySelector( "div" )
+      const element    = await render( html`
+        <slot></slot> <div class='existing'>foo</div>`, "<div class='slotted'></div>" )
 
-      expect( slottedDiv ).to.exist
-      expect( typeof element.state.get() ).to.equal( "object" )
+      expect(element.innerHTML).to.include( "slotted" )
     } )
-    it( "works with custom class", async () => {
-      type State = {
-        foo: string
+
+    it("works with custom class", async () => {
+      interface State {
         bar: string
+        foo: string
       }
       const Base = createWebComponentBaseClass<State>( {
-                                                         tag         : "my-element",
-                                                         defaultState: {
-                                                           foo: "foo",
-                                                           bar: "bar",
-                                                         },
-                                                         // language=HTML
-                                                         template: `
-                                                           <slot></slot>
-                                                           <button>button
-                                                           </button>
-                                                         `,
-                                                       } )
+        defaultState: {
+          bar: "bar",
+          foo: "foo",
+        },
+
+        tag         : "my-element",
+        template: html`
+            <slot></slot>
+            <button>button</button>` } )
 
       class Extended extends Base {
         connectedCallback() {
-          const a = this.state.get().foo
-
-          this.shadowRoot.querySelector( "button" )
-              .addEventListener( "click",
-                                 () => this.render( "<div>bar</div>" ) )
+          this.shadowRoot?.querySelector( "button" )
+            ?.addEventListener( "click",
+              () => { this.render( html`<div>bar</div>` ) } )
         }
       }
 
@@ -74,46 +67,41 @@ describe( "custom component builder", () => {
           <div>foo</div>
         </my-element>` )
 
+      assert( element.shadowRoot?.querySelector("button"),
+        "doesn't have button")
 
       const button = element.shadowRoot.querySelector( "button" )
       button.click()
 
-      expect( element.shadowRoot ).html( "<div>bar</div>" )
+      expect( element.shadowRoot?.innerHTML ).to.include( "<div>bar</div>" )
     } )
   } )
 
   describe( "state", () => {
     it( "has working defaultState", async () => {
-      const element = await render( `<div></div>` )
+      const element = await render( html`<div>default state should work</div>` )
 
-      expect( element.state.get() ).to.deep.equal( {
-                                                     foo: "foo",
-                                                     bar: "bar",
-                                                   } )
+      expect(element.state.get())
+        .to.deep.equal({
+          bar: "bar",
+          foo: "foo",
+        } )
     } )
+
     it( "should update state", async () => {
-      const element = await render( `<div></div>` )
+      const element = await render( html`<div></div>` )
 
       const newValue = {
-        foo: "new foo",
         bar: "bar",
+        foo: "new foo",
       }
       element.state.set(()=>newValue )
 
       expect( element.state.get() ).to.deep.equal(newValue)
     } )
-    it( "supports templates", async () => {
-      // language=HTML
-      const element = await render( `
-        <template>
-          <slot></slot>
-          <div>bar</div>
-        </template>
-      ` )
 
-    } )
     it( "supports state subscribing", async () => {
-      const element = await render( `<div></div>` )
+      const element = await render( html`<div></div>` )
 
       expect( element.state.subscribe ).to.be.a( "function" )
     } )
