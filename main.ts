@@ -1,6 +1,5 @@
 import { produce } from "immer"
-import { HTMLTemplateResult } from "lit"
-import {render } from "lit-html"
+import { render,TemplateResult  } from "lit"
 import { atom } from "nanostores"
 
 import { Recipe, State } from "./@types/State"
@@ -22,30 +21,37 @@ import WebComponentConfiguration from "./@types/WebComponentConfiguration"
  *     State initialized from config
  *     Methods can be added by extending class after it is returned
  *
- * @param {WebComponentConfiguration<T>} configuration - The configuration
+ * @param {WebComponentConfiguration<StateGeneric>} configuration - The configuration
  *   object for the web component.
  * @return {WebComponentClass} The new web component class.
  */
-const createWebComponentBaseClass = <T>(configuration: WebComponentConfiguration<T>) => {
-
-  const stateAtom = atom(configuration.defaultState)
+const createWebComponentBaseClass = <StateGeneric>(
+  configuration: WebComponentConfiguration<StateGeneric>,
+) => {
+  const stateAtom = atom<StateGeneric>(configuration.defaultState)
 
   return class WebComponent extends HTMLElement {
-    state: State<T> = {
+    state: State<StateGeneric> = {
       ...stateAtom,
 
-      set: (recipe:Recipe<T>) =>
-      { stateAtom.set(produce(stateAtom.get(), recipe)) },
+      set: (recipe: Recipe<StateGeneric>) => {
+        stateAtom.set(produce(stateAtom.get(), recipe))
+      },
     }
+
+    template = atom<TemplateResult>(configuration.template)
 
     constructor() {
       super()
       this.attachShadow({ mode: "open" })
-      this.render(configuration.template)
+
+      this.template.subscribe(() => {
+        this.render()
+      })
     }
 
-    render(content: HTMLTemplateResult) {
-      render(content, this.shadowRoot!)
+    render() {
+      render(this.template.get(), this.shadowRoot!)
     }
   }
 }

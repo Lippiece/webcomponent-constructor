@@ -1,6 +1,6 @@
 {
   "name": "webcomponent-constructor",
-  "version": "0.8.0",
+  "version": "0.8.1",
   "description": "A tool for creating web components that automatically implement best practices.",
   "main": "main.ts",
   "scripts": {
@@ -19,17 +19,19 @@
   "author": "lippiece",
   "license": "ISC",
   "dependencies": {
-    "immer": "^10.0.2",
-    "nanostores": "^0.9.3",
-    "lit": "^3.1.0"
+    "immer": "^10.0.3",
+    "lit": "^3.1.0",
+    "nanostores": "^0.9.5"
   },
   "devDependencies": {
-    "@esm-bundle/chai": "^4.3.4-fix.0",
-    "@open-wc/testing": "next",
+    "@esm-bundle/chai": "4.3.4-fix.0",
+    "@open-wc/testing": "^4.0.0",
     "@types/mocha": "^10.0.6",
     "@web/dev-server-esbuild": "^1.0.1",
     "@web/test-runner": "^0.18.0",
-    "eslint-config-adjunct": "^4.12.2",
-    "typescript": "^5.2.2"
+    "typescript": "^5.3.3"
+  },
+  "peerDependencies": {
+    "eslint-config-adjunct": "^4.12.2"
   }
 }

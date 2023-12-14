@@ -1,3 +1,7 @@
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
+
+
+/* eslint-disable @typescript-eslint/no-unsafe-call */
 import { assert, expect, fixture, html, unsafeStatic } from "@open-wc/testing"
 import { HTMLTemplateResult } from "lit"
 
@@ -56,7 +60,7 @@ describe( "custom component builder", () => {
         connectedCallback() {
           this.shadowRoot?.querySelector( "button" )
             ?.addEventListener( "click",
-              () => { this.render( html`<div>bar</div>` ) } )
+              () => { this.template.set( html`<div>bar</div>` ) } )
         }
       }
 
@@ -70,8 +74,8 @@ describe( "custom component builder", () => {
       assert( element.shadowRoot?.querySelector("button"),
         "doesn't have button")
 
-      const button = element.shadowRoot.querySelector( "button" )
-      button.click()
+      const button = element.shadowRoot?.querySelector( "button" )
+      button?.click()
 
       expect( element.shadowRoot?.innerHTML ).to.include( "<div>bar</div>" )
     } )
@@ -105,5 +109,34 @@ describe( "custom component builder", () => {
 
       expect( element.state.subscribe ).to.be.a( "function" )
     } )
+
+    it("works with custom template", async () => {
+      const Base = createWebComponentBaseClass( {
+        tag         : "custom-template",
+      } )
+
+      class Extended extends Base {
+        connectedCallback() {
+          this.template.set(html`
+            <slot></slot>
+            <button @click="${()=>{ this.querySelector( "div" ).textContent = "clicked" } }">button</button>`)
+        }
+      }
+
+      customElements.define( "custom-template", Extended )
+
+      const element = await fixture(html`
+        <custom-template>
+          <div>foo</div>
+        </custom-template>
+      `)
+
+      assert(element.shadowRoot?.innerHTML.includes("button"), "doesn't have button")
+
+      const button = element.shadowRoot?.querySelector("button")
+      button.click()
+
+      expect(element.innerHTML).to.include("clicked")
+    })
   } )
 } )

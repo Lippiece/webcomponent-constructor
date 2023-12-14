@@ -1,7 +1,7 @@
-import { HTMLTemplateResult } from "../node_modules/lit-html/lit-html";
+import { TemplateResult } from "lit";
 
-export default interface WebComponentConfiguration<T> {
+export default interface WebComponentConfiguration<State> {
   name: string;
-  defaultState: T;
-  template: HTMLTemplateResult;
+  defaultState: State;
+  template: TemplateResult;
 }
