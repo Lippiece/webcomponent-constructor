@@ -37,7 +37,9 @@ Use the createWebComponentBaseClass function with your configuration.
 class YourOwnClass extends Base {
   constructor() {
     super()
-    this.template.set(html`<button @click=${() => state.set({ count: state.count + 1 })}>Click Me: ${state.count}</button>`)
+    this.state.listen((state => {
+      this.template.set(html`<button @click=${() => this.state.set(()=>({ count: state.count + 1 }))}>Click Me: ${state.count}</button>`)
+    }
     // ^ ^ ^
     // `@`-stuff is ok here since you have access to `this`.
     // Just don't forget about arrow functions or binding `this` inside the listeners.
